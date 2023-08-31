@@ -1,208 +1,118 @@
 import 'package:flutter/material.dart';
-import '/constant.dart';
-import 'package:math_expressions/math_expressions.dart';
+import 'package:flutter/services.dart';
+import 'package:day_night_switcher/day_night_switcher.dart';
+import 'package:torch_light/torch_light.dart';
+//
+import '../widgets.dart';
 
 void main() {
-  runApp(CalculatorApplication());
+  runApp(const MyApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
-
-class CalculatorApplication extends StatefulWidget {
-  const CalculatorApplication({super.key});
-
-  @override
-  State<CalculatorApplication> createState() => _CalculatorApplicationState();
-}
-
-class _CalculatorApplicationState extends State<CalculatorApplication> {
-  var result = '0';
-  var inputUser = '';
-
-  void buttonPressed(String text) {
-    setState(() {
-      inputUser = inputUser + text;
-    });
-  }
-
-
-  Widget getRow(
-      String text1,
-      String text2,
-      String text3,
-      String text4) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        RawMaterialButton(
-          onPressed: () {
-            if (text1 == 'AC') {
-              setState(() {
-                inputUser = '';
-                result = '0';
-              });
-            } else {
-              buttonPressed(text1);
-            }
-          },
-          elevation: 2.0,
-          fillColor: getBackgroundColor(text1),
-          child: Text(
-            text1,
-            style: TextStyle(
-                color: getTextColor(text1),
-                fontSize: 30,
-                fontWeight: FontWeight.bold
-            ),
-          ),
-          padding: EdgeInsets.all(20.0),
-          shape: CircleBorder(),
-        ),
-        RawMaterialButton(
-          onPressed: () {
-            if (text2 == 'CE') {
-              setState(() {
-                if (inputUser.length > 0) {
-                  inputUser = inputUser.substring(0, inputUser.length - 1);
-                }
-              });
-            } else {
-              buttonPressed(text2);
-            }
-          },
-          elevation: 2.0,
-          fillColor: getBackgroundColor(text2),
-          child: Text(
-            text2,
-            style: TextStyle(
-                color: getTextColor(text2),
-                fontSize: 30,
-                fontWeight: FontWeight.bold
-            ),
-          ),
-          padding: EdgeInsets.all(20.0),
-          shape: CircleBorder(),
-        ),
-        RawMaterialButton(
-          onPressed: () {
-            buttonPressed(text3);
-          },
-          elevation: 2.0,
-          fillColor: getBackgroundColor(text3),
-          child: Text(
-            text3,
-            style: TextStyle(
-                color: getTextColor(text3),
-                fontSize: 30,
-                fontWeight: FontWeight.bold
-            ),
-          ),
-          padding: EdgeInsets.all(20.0),
-          shape: CircleBorder(),
-        ),
-        RawMaterialButton(
-          onPressed: () {
-            if (text4 == '=') {
-              Parser parser = Parser();
-              Expression expression = parser.parse(inputUser);
-              ContextModel contextModel = ContextModel();
-              double eval = expression.evaluate(EvaluationType.REAL, contextModel);
-
-              setState(() {
-                result = eval.toString();
-              });
-
-            } else {
-              buttonPressed(text4);
-            }
-          },
-          elevation: 2.0,
-          fillColor: kAmber,
-          child: Text(
-            text4,
-            style: TextStyle(
-                fontSize: 40,
-                color: Colors.blueAccent,
-                fontWeight: FontWeight.bold
-            ),
-          ),
-          padding: EdgeInsets.all(15.0),
-          shape: CircleBorder(),
-        )
-      ],
-    );
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Flutter FlashLight App',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: kBlack,
-        body: SafeArea(
-          child: Column(
+      theme: ThemeData(
+        fontFamily: "Oxygen",
+      ),
+      home: const Main(),
+    );
+  }
+}
+
+class Main extends StatefulWidget {
+  const Main({Key? key}) : super(key: key);
+
+  @override
+  State<Main> createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  bool isFlashOn = true;
+  bool isDarkMode = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: isDarkMode
+            ? Color.fromARGB(255, 245, 245, 245)
+            : Color.fromARGB(255, 24, 24, 24),
+        appBar: AppBar(
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          title: Text(
+            "Flashy",
+            style: TextStyle(
+                color: isDarkMode ? Colors.black : Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w500),
+          ),
+        ),
+        body: Center(
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              Expanded(
-                flex: 35,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            inputUser,
-                            style: TextStyle(
-                              color: kLightGray,
-                              fontSize: 40,
-                            ),
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '=',
-                            style: TextStyle(
-                              color: kLightGray,
-                              fontSize: 80,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              result,
-                              style: TextStyle(
-                                color: Colors.pinkAccent,
-                                fontSize: 70,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              Positioned(
+                bottom: h / 2.2,
+                child: DayNightSwitcher(
+                    isDarkModeEnabled: isFlashOn,
+                    onStateChanged: (val) {
+                      setState(() {
+                        isFlashOn = val;
+                        isDarkMode = !isDarkMode;
+                      });
+
+                      isFlashOn
+                          ? _turnOffFlash(context)
+                          : _turnOnFlash(context);
+                    }),
               ),
-              Expanded(
-                flex: 65,
-                child: Container(
-                  child: Column(
+
+              Positioned(
+                bottom: 20,
+                child: SizedBox(
+                  width: w / 1.2,
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      SizedBox(height: 5,),
-                      getRow('AC', 'CE', '%', '/'),
-                      getRow('1', '2', '3', '*'),
-                      getRow('4', '5', '6', '-'),
-                      getRow('7', '8', '9', '+'),
-                      getRow('00', '0', '.', '='),
-                      Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 0),),
+                      /// My Gmail
+                      bottomSocial(
+                          img: "assets/images/gmail.png",
+                          url: "https://amirbayat.dev@gmail.com",
+                          context: context,
+                          isDarkMode: isDarkMode),
+
+                      /// My Youtube
+                      bottomSocial(
+                          img: "assets/images/youtube.png",
+                          url:
+                          "https://www.youtube.com/channel/UCLVrYXt3SL9rT-IcDmgU9Wg",
+                          context: context,
+                          isDarkMode: isDarkMode),
+
+                      /// My Instagram
+                      bottomSocial(
+                          img: "assets/images/inst.png",
+                          url: "https://www.instagram.com/codewithflexz/",
+                          context: context,
+                          isDarkMode: isDarkMode),
+
+                      /// My GitHub
+                      bottomSocial(
+                          img: "assets/images/github.png",
+                          url: "https://github.com/AmirBayat0",
+                          context: context,
+                          isDarkMode: isDarkMode),
                     ],
                   ),
                 ),
@@ -213,44 +123,24 @@ class _CalculatorApplicationState extends State<CalculatorApplication> {
       ),
     );
   }
+}
 
-  bool isOprator(String text) {
-    var list = ['AC', 'CE', '%'];
-
-    for (var item in list) {
-      if (text == item) {
-        return true;
-      }
-    }
-    return false;
+Future<void> _turnOnFlash(BuildContext context) async {
+  try {
+    await TorchLight.enableTorch();
+  } on Exception catch (_) {
+    _showErrorMes('Could not enable Flashlight', context);
   }
+}
 
-  Color getBackgroundColor(String text) {
-    if (isOprator(text)) {
-      return kLightGray;
-    }
-    else {
-      return kDarkGray;
-    }
+Future<void> _turnOffFlash(BuildContext context) async {
+  try {
+    await TorchLight.disableTorch();
+  } on Exception catch (_) {
+    _showErrorMes('Could not enable Flashlight', context);
   }
+}
 
-  bool TextOprator(String text) {
-    var list = ['AC', 'CE', '%'];
-
-    for (var item in list) {
-      if (text == item) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Color getTextColor(String text) {
-    if (isOprator(text)) {
-      return Colors.black;
-    }
-    else {
-      return Colors.deepPurpleAccent;
-    }
-  }
+void _showErrorMes(String mes, BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mes)));
 }
